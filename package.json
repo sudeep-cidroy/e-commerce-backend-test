@@ -1,0 +1,32 @@
+{
+  "name": "e-commerce-backend-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "ts-node src/app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudeep-cidroy/e-commerce-backend-test.git"
+  },
+  "author": "sudeep",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sudeep-cidroy/e-commerce-backend-test/issues"
+  },
+  "homepage": "https://github.com/sudeep-cidroy/e-commerce-backend-test#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^22.10.7",
+    "@types/node-cache": "^4.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
