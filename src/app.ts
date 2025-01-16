@@ -66,6 +66,47 @@ app.get('/products', async (req: Request, res: Response) => {
   }
 });
 
+
+app.post('/products', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, price, stock } = req.body;
+
+    if (!name || typeof price !== 'number' || typeof stock !== 'number') {
+
+      res.status(400).send('Invalid product data');
+      return;
+    }
+
+    const newProduct = new Product({ name, price, stock });
+    await newProduct.save();
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).send('Error creating product');
+  }
+});
+
+app.put('/products/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, price, stock } = req.body;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { name, price, stock },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      res.status(404).send('Product not found');
+      return;
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(500).send('Error updating product');
+  }
+});
+
 // 2. Buy a product (with race condition challenge)
 app.post('/buy/:id', async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
@@ -97,9 +138,6 @@ app.post('/buy/:id', async (req: Request, res: Response): Promise<void> => {
     res.status(500).send('Error buying product');
   }
 });
-
-
-
 
 
 // 3. Recursive Task: Calculate product category hierarchy
@@ -141,6 +179,32 @@ app.get('/categories/hierarchy/:categoryId', async (req: Request, res: Response)
     res.json(hierarchy);
   } catch (error) {
     res.status(500).send('Error fetching category hierarchy');
+  }
+});
+
+app.post('/categories', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, parent } = req.body;
+
+    if (!name) {
+      res.status(400).send('Category name is required');
+      return;
+    }
+
+    const newCategory = new Category({ name, parent, subcategories: [] });
+    await newCategory.save();
+
+    if (parent) {
+      const parentCategory = await Category.findById(parent);
+      if (parentCategory) {
+        parentCategory.subcategories.push(newCategory._id);
+        await parentCategory.save();
+      }
+    }
+
+    res.status(201).json(newCategory);
+  } catch (error) {
+    res.status(500).send('Error creating category');
   }
 });
 
