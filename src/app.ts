@@ -60,9 +60,9 @@ app.get('/products', async (req: Request, res: Response) => {
       console.log("Cache hit: Fetching products from cache");
     }
 
-    res.json(products); // Explicitly return res.json()
+    res.json(products);
   } catch (error) {
-    res.status(500).send('Error fetching products'); // Explicitly return res.status()
+    res.status(500).send('Error fetching products');
   }
 });
 
@@ -281,10 +281,15 @@ app.listen(PORT, () => {
 });
 
 // Tasks for the Candidate:
-// 1. Implement a better caching strategy for the /products route.
-//    - Current behavior: Products are cached for 60 seconds. However, the cache is cleared every time.
-//    - Problem: When multiple clients request /products, the database query is repeated unnecessarily, leading to slower performance.
-//    - Your Task: Improve the caching logic so that it handles updates and invalidates the cache only when necessary.
+// 1. Implement an enhanced caching strategy for the /products route.
+//    - Current behavior: Products are cached for 60 seconds, but the cache is invalidated entirely when a product is created or updated.
+//    - Problem: This leads to unnecessary cache invalidations and suboptimal performance when only a small subset of products changes.
+//    - Your Task:
+//      - Cache the full product list separately from individual product queries.
+//      - When a product is created or updated:
+//        - Invalidate the full product list cache (`all_products`).
+//        - Update or invalidate the cache entry for the specific product (e.g., `/products/:id`).
+//      - Add a mechanism to periodically refresh the full product list cache in the background without blocking requests.
 
 // 2. Add a recursive task to calculate product category hierarchy (/categories/hierarchy/:categoryId).
 //    - Current Requirement: If multiple clients try to buy the same product simultaneously, the stock validation may fail, causing incorrect stock values.
