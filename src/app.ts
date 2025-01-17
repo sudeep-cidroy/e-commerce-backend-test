@@ -46,7 +46,9 @@ const Product = mongoose.model<IProduct>('Product', ProductSchema);
 const cache = new NodeCache({ stdTTL: 60 });
 
 // Routes
+
 // 1. Get all products (with caching)
+// Task: Enhance the caching logic to handle cache invalidation and periodic refreshing of the cache.
 app.get('/products', async (req: Request, res: Response) => {
   try {
     const cacheKey = 'all_products';
@@ -72,7 +74,6 @@ app.post('/products', async (req: Request, res: Response): Promise<void> => {
     const { name, price, stock } = req.body;
 
     if (!name || typeof price !== 'number' || typeof stock !== 'number') {
-
       res.status(400).send('Invalid product data');
       return;
     }
@@ -107,7 +108,10 @@ app.put('/products/:id', async (req: Request, res: Response) => {
   }
 });
 
+
+
 // 2. Buy a product (with race condition challenge)
+// Task: Implement a locking mechanism or MongoDB transactions to handle concurrent requests properly.
 app.post('/buy/:id', async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { quantity } = req.body;
@@ -125,9 +129,6 @@ app.post('/buy/:id', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Current Problem: If multiple clients try to buy the same product simultaneously, the stock validation may fail, causing incorrect stock values.
-    // Your Task: Implement a locking mechanism or use MongoDB transactions to handle concurrent requests properly.
-
     // Simulate delay to test race conditions
     setTimeout(async () => {
       product.stock -= quantity;
@@ -140,7 +141,9 @@ app.post('/buy/:id', async (req: Request, res: Response): Promise<void> => {
 });
 
 
+
 // 3. Recursive Task: Calculate product category hierarchy
+// Task: Implement a recursive function to build the hierarchy of categories starting from a given category ID.
 interface ICategory {
   name: string;
   parent: mongoose.Types.ObjectId | null;
@@ -155,24 +158,11 @@ const CategorySchema = new mongoose.Schema<ICategory>({
 
 const Category = mongoose.model<ICategory>('Category', CategorySchema);
 
-// Current Requirement: Management wants to visualize product categories and subcategories in a tree-like structure.
-// Example: A "Clothing" category might have subcategories like "Men's Wear" and "Women's Wear,"
-// and each subcategory could have further subcategories.
-
-// Your Task: Implement a recursive function to build the hierarchy of categories starting from a given category ID.
 app.get('/categories/hierarchy/:categoryId', async (req: Request, res: Response) => {
   const { categoryId } = req.params;
   try {
     const buildHierarchy = async (categoryId: mongoose.Types.ObjectId | null): Promise<any> => {
-      const category = await Category.findById(categoryId).populate('subcategories');
-      if (!category) return null;
-
-      return {
-        name: category.name,
-        subcategories: await Promise.all(
-          category.subcategories.map(async (subId) => await buildHierarchy(subId))
-        ),
-      };
+      // Complete this function
     };
 
     const hierarchy = await buildHierarchy(new mongoose.Types.ObjectId(categoryId));
@@ -182,38 +172,14 @@ app.get('/categories/hierarchy/:categoryId', async (req: Request, res: Response)
   }
 });
 
-app.post('/categories', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { name, parent } = req.body;
 
-    if (!name) {
-      res.status(400).send('Category name is required');
-      return;
-    }
 
-    const newCategory = new Category({ name, parent, subcategories: [] });
-    await newCategory.save();
 
-    if (parent) {
-      const parentCategory = await Category.findById(parent);
-      if (parentCategory) {
-        parentCategory.subcategories.push(newCategory._id);
-        await parentCategory.save();
-      }
-    }
-
-    res.status(201).json(newCategory);
-  } catch (error) {
-    res.status(500).send('Error creating category');
-  }
-});
 
 // 4. Aggregation Task: Top-selling products
+// Task: Modify MongoDB aggregation pipeline to return the top 5 most expensive products and the product with the highest stock quantity.
 app.get('/top-products', async (req: Request, res: Response) => {
   try {
-    // Current Requirement: Management wants to identify the top 5 most expensive products that are in stock.
-    // Your Task: Use MongoDB aggregation to filter and sort the products, and return only the necessary fields.
-
     const topProducts = await Product.aggregate([
       { $match: { stock: { $gt: 0 } } },
       { $sort: { price: -1 } },
@@ -227,7 +193,8 @@ app.get('/top-products', async (req: Request, res: Response) => {
   }
 });
 
-// 5. Complicated problem: Nested comments API
+// 5. Nested comments API
+// Task: Implement a nested comment system with hierarchical retrieval.
 interface IComment {
   text: string;
   replies: mongoose.Types.ObjectId[];
@@ -240,9 +207,6 @@ const Comment = mongoose.model<IComment>('Comment', CommentSchema);
 
 app.post('/comments', async (req: Request, res: Response): Promise<void> => {
   const { text, parentId } = req.body;
-
-  // Current Requirement: Implement a nested comment system where each comment can have multiple replies.
-  // Your Task: Ensure comments can be linked to their parent comment and replies can be retrieved properly.
 
   try {
     const newComment = new Comment({ text, replies: [] });
@@ -264,8 +228,7 @@ app.post('/comments', async (req: Request, res: Response): Promise<void> => {
 
 app.get('/comments', async (req: Request, res: Response) => {
   try {
-    // Current Requirement: Retrieve all comments, including nested replies, in a hierarchical structure.
-    // Your Task: Populate the replies field and ensure the data structure is easy to navigate.
+    // Your Task: Retrieve all comments, including nested replies, in a hierarchical structure.
 
     const comments = await Comment.find().populate('replies');
     res.send(comments);
@@ -280,33 +243,6 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-// Tasks for the Candidate:
-// 1. Implement an enhanced caching strategy for the /products route.
-//    - Current behavior: Products are cached for 60 seconds, but the cache is invalidated entirely when a product is created or updated.
-//    - Problem: This leads to unnecessary cache invalidations and suboptimal performance when only a small subset of products changes.
-//    - Your Task:
-//      - Cache the full product list separately from individual product queries.
-//      - When a product is created or updated:
-//        - Invalidate the full product list cache (`all_products`).
-//        - Update or invalidate the cache entry for the specific product (e.g., `/products/:id`).
-//      - Add a mechanism to periodically refresh the full product list cache in the background without blocking requests.
-
-// 2. Add a recursive task to calculate product category hierarchy (/categories/hierarchy/:categoryId).
-//    - Current Requirement: If multiple clients try to buy the same product simultaneously, the stock validation may fail, causing incorrect stock values.
-//    - Your Task: Implement a locking mechanism or use MongoDB transactions to handle concurrent requests properly.
-
-// 3. Add a recursive task to calculate product category hierarchy (/categories/hierarchy/:categoryId).
-//    - Current Requirement: Management wants to visualize product categories and subcategories in a tree-like structure.
-//    - Your Task: Improve error handling and optimize the recursion logic if possible.
-
-// 4. Implement a MongoDB aggregation pipeline to fetch top-selling products in the /top-products route.
-//    - Current Requirement: Management wants to identify the top 5 most expensive products that are in stock.
-//    - Your Task: Use MongoDB aggregation to filter and sort the products, and return only the necessary fields.
-
-// 5. Implement nested comment functionality in the /comments route.
-//    - Current Requirement: Implement a nested comment system where each comment can have multiple replies.
-//    - Your Task: Ensure comments can be linked to their parent comment and replies can be retrieved properly.
-
 // 6. Organize the project files into a proper folder structure.
 //    - Current Problem: All logic is in a single file, making it hard to maintain and scale.
 //    - Your Task: Refactor the project by splitting it into appropriate folders and files.
@@ -316,4 +252,3 @@ app.listen(PORT, () => {
 //      - `controllers/`: Place all controller logic (e.g., `productController.ts`, `commentController.ts`).
 //      - `utils/`: Place reusable utilities (e.g., caching logic).
 //    - Ensure the project works without errors after refactoring.
-
