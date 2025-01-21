@@ -237,11 +237,6 @@ app.get('/comments', async (req: Request, res: Response) => {
   }
 });
 
-// Start Server
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
 
 // 6. Organize the project files into a proper folder structure.
 //    - Current Problem: All logic is in a single file, making it hard to maintain and scale.
@@ -252,3 +247,88 @@ app.listen(PORT, () => {
 //      - `controllers/`: Place all controller logic (e.g., `productController.ts`, `commentController.ts`).
 //      - `utils/`: Place reusable utilities (e.g., caching logic).
 //    - Ensure the project works without errors after refactoring.
+
+
+
+/**
+ * TASK 7: Rate Limiting System
+ * 
+ * Problem: Implement a rate limiting mechanism to prevent abuse of your API.
+ * - Scenario: Your application has several endpoints, and you need to ensure fair usage by implementing rate limits.
+ * - Task: Design and implement a middleware to enforce rate limits per user or IP.
+ * - Allow up to 100 requests per user per hour.
+ * - Block further requests and respond with an appropriate error message if the limit is exceeded.
+ * - Track usage efficiently without significant performance overhead.
+ * 
+ * Example Endpoint:
+ * - Any endpoint should include the rate limiting middleware.
+ * 
+ * Example Response:
+ * - On success: Standard API response.
+ * - On limit exceeded:
+ *   ```json
+ *   {
+ *     "error": "Rate limit exceeded. Try again later."
+ *   }
+ *   ```
+ * 
+ * Notes:
+ * - Implement an efficient in-memory or database-based rate limiting logic.
+ * - Bonus: Extend the rate limiting mechanism to support flexible limits (e.g., different limits for different endpoints).
+ */
+
+
+
+
+/**
+ * TASK 8: Product Recommendation System
+ * 
+ * Problem: Store user preferences and recommend products.
+ * - Task: Design a schema to capture user preferences and history.
+ * - Write an endpoint to fetch recommendations for a user.
+ * 
+ * Example Schema:
+ * - UserPreferences: { userId, category, weight }
+ * - UserHistory: { userId, productId, timestamp }
+ * - Recommendations: { userId, productId, score }
+ * 
+ * Example Endpoint:
+ * - GET /recommendations/:userId
+ * 
+ * Notes:
+ * - Ensure recommendations are generated efficiently.
+ * - Consider user preferences and purchase history while generating recommendations.
+ */
+
+
+
+
+
+/**
+ * TASK 9: Version Control for Documents
+ * 
+ * Problem: Implement a schema for document version control.
+ * - Task: Create a schema for documents to include version history, author, and metadata.
+ * - Write code to fetch the latest version and a specific version of a document.
+ * 
+ * Example Schema:
+ * - Documents: { id, name }
+ * - DocumentVersions: { id, documentId, version, content, author, timestamp }
+ * 
+ * Example Endpoints:
+ * 1. GET /documents/:documentId/latest
+ *    - Fetch the latest version of the document.
+ * 2. GET /documents/:documentId/version/:versionNumber
+ *    - Fetch a specific version of the document.
+ * 
+ * Notes:
+ * - Ensure versioning logic is robust and handles concurrency gracefully.
+ */
+
+
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+

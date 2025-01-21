@@ -176,4 +176,124 @@
 
 ---
 
+### 7. Rate Limiting System
+- **Problem:** Implement a rate limiting mechanism to prevent abuse of your API.
+- **Scenario:** Your application has several endpoints, and you need to ensure fair usage by implementing rate limits.
+- **Your Task:**
+  - Design and implement a middleware to enforce rate limits per user or IP.
+  - Allow up to 5 requests per user per minute.
+  - Block further requests and respond with an appropriate error message if the limit is exceeded.
+  - Track usage efficiently without significant performance overhead.
+
+**Example Endpoint:**
+- Any endpoint should include the rate limiting middleware.
+
+**Example Response:**
+- On success: Standard API response.
+- On limit exceeded:
+  ```json
+  {
+    "error": "Rate limit exceeded. Try again later."
+  }
+  ```
+**Notes:**
+- Implement an efficient in-memory or database-based rate limiting logic.
+- Bonus: Extend the rate limiting mechanism to support flexible limits (e.g., different limits for different endpoints).
+
+---
+
+### 8. Product Recommendation System
+- **Problem:** Store user preferences and recommend products.
+- **Your Task:**
+  - Design a schema to capture user preferences and history.
+  - Write an endpoint to fetch recommendations for a user.
+
+<!-- **Example Schema:**
+- `UserPreferences`: { userId, category, weight }
+- `UserHistory`: { userId, productId, timestamp }
+- `Recommendations`: { userId, productId, score } -->
+
+**Example Endpoint:**
+- **GET /recommendations/:userId**
+
+**Example Response:**
+```json
+[
+  {
+    "productId": 101,
+    "score": 0.89
+  },
+  {
+    "productId": 102,
+    "score": 0.76
+  }
+]
+```
+**Notes:**
+- Ensure recommendations are generated efficiently.
+- Consider user preferences and purchase history while generating recommendations.
+
+---
+
+### 9. Version Control for Documents
+- **Problem:** Implement a schema for document version control.
+- **Your Task:**
+  - Create a schema for documents to include version history, author, and metadata.
+  - Write code to fetch the latest version and a specific version of a document.
+
+**Example Schema:**
+- `Documents`: { id, name }
+- `DocumentVersions`: { id, documentId, version, content, author, timestamp }
+
+**Example Endpoints:**
+- **GET /documents/:documentId/latest**
+  - Fetch the latest version of the document.
+- **GET /documents/:documentId/version/:versionNumber**
+  - Fetch a specific version of the document.
+
+**Example Response:**
+- Latest Version:
+  ```json
+  {
+    "id": "123",
+    "documentId": "456",
+    "version": 5,
+    "content": "Latest content here...",
+    "author": "User A",
+    "timestamp": "2025-01-01T12:00:00Z"
+  }
+  ```
+- Specific Version:
+  ```json
+  {
+    "id": "124",
+    "documentId": "456",
+    "version": 3,
+    "content": "Content for version 3...",
+    "author": "User B",
+    "timestamp": "2025-01-01T10:00:00Z"
+  }
+  ```
+**Notes:**
+- Ensure versioning logic is robust and handles concurrency gracefully.
+
+---
+
+## Evaluation Criteria
+
+### Cleanliness and Readability of Code (30%)
+- Is the code well-structured and easy to read?
+- Are best practices followed?
+
+### Correctness of Solutions (40%)
+- Does the code meet the task requirements?
+- Are edge cases handled effectively?
+
+### Problem-Solving Approach (20%)
+- Does the solution demonstrate critical thinking and logical reasoning?
+- Are the solutions efficient and scalable?
+
+### Testing and Validation (10%)
+- Are the solutions tested thoroughly?
+- Are test cases and scenarios realistic?
 
